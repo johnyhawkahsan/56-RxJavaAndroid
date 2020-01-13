@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
@@ -18,6 +19,9 @@ public class MainActivity extends AppCompatActivity {
 
     // ui
     private TextView textView;
+
+    // vars
+    private CompositeDisposable disposables = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSubscribe(Disposable d) {
                 Log.d(TAG, "onSubscribe: called.");
+                disposables.add(d);
             }
 
             @Override
@@ -71,5 +76,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    // We "clear" disposables in onDestroy. In MVVM model, we need to clear in "onCleared" method inside ViewModel.
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //disposables.dispose(); // dispose completely disposes Observable object which is not very good
+        disposables.clear(); // clear disposes Observable once it's destroyed
     }
 }
