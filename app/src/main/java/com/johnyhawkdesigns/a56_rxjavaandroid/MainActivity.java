@@ -1,11 +1,11 @@
 package com.johnyhawkdesigns.a56_rxjavaandroid;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Observer;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -44,45 +44,25 @@ public class MainActivity extends AppCompatActivity {
         final Task task = new Task("Walk the dog", false, 3);
 
 
-        //======================================fromFuture() Operator===================================//
+        //======================================fromPublisher() Operator===================================//
 
 
         MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-        try {
-            viewModel.makeFutureQuery().get()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Observer<ResponseBody>() {
-                        @Override
-                        public void onSubscribe(Disposable d) {
-                            Log.d(TAG, "onSubscribe: called.");
-                        }
 
-                        @Override
-                        public void onNext(ResponseBody responseBody) {
-                            Log.d(TAG, "onNext: got the response from server!");
-                            try {
-                                Log.d(TAG, "onNext: " + responseBody.string());
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
+        viewModel.makeQuery().observe(this, new Observer<ResponseBody>() {
+            @Override
+            public void onChanged(ResponseBody responseBody) {
 
-                        @Override
-                        public void onError(Throwable e) {
-                            Log.e(TAG, "onError: ", e);
-                        }
+                Log.d(TAG, "onChanged: this is a live data response!");
+                try {
+                    Log.d(TAG, "onChanged: " + responseBody.string());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-                        @Override
-                        public void onComplete() {
-                            Log.d(TAG, "onComplete: called.");
-                        }
-                    });
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+            }
+        });
+
 
 
     }

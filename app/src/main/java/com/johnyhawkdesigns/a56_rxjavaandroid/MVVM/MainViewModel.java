@@ -2,6 +2,7 @@ package com.johnyhawkdesigns.a56_rxjavaandroid.MVVM;
 
 import java.util.concurrent.Future;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 import io.reactivex.Observable;
 import okhttp3.ResponseBody;
@@ -17,8 +18,9 @@ public class MainViewModel extends ViewModel {
         repository = Repository.getInstance();
     }
 
-    // Future object is returned from repository which has FutureQuery method
-    public Future<Observable<ResponseBody>> makeFutureQuery(){
-        return repository.makeFutureQuery();
+    // This is just MVVM requirement to return method defined inside "Repository" to return here.
+    public LiveData<ResponseBody> makeQuery(){
+        return repository.makeReactiveQuery();
     }
+
 }

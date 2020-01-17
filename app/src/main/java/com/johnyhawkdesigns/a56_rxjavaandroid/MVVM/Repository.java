@@ -8,7 +8,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.LiveDataReactiveStreams;
 import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
 // Here is the "bread and butter" of the example. This is where I'm using an Executor to make
@@ -25,54 +28,12 @@ public class Repository {
         return repositoryInstance;
     }
 
-    // Return "Future" Object
-    public Future<Observable<ResponseBody>> makeFutureQuery(){
+    // Return "LiveData" Object
+    public LiveData<ResponseBody> makeReactiveQuery(){
+        return LiveDataReactiveStreams.fromPublisher(ServiceGenerator.getRequestApi() // this gets requestApi created out of retrofit
+        .makeQuery() // method in RequestApi
+        .subscribeOn(Schedulers.io())); // this tells to do this task in the background
 
-        final ExecutorService executor = Executors.newSingleThreadExecutor();
-
-        // A task that returns a result and may throw an exception. Implementors define a single method with no arguments called call.
-        // The Callable interface is similar to Runnable, in that both are designed for classes whose instances are potentially executed by another thread. A Runnable, however, does not return a result and cannot throw a checked exception.
-        final Callable<Observable<ResponseBody>> myNetworkCallable = new Callable<Observable<ResponseBody>>() {
-            @Override
-            public Observable<ResponseBody> call() throws Exception {
-                return ServiceGenerator.getRequestApi().makeObservableQuery(); // This is how we reach to our RequestApi method
-            }
-        };
-
-        // This is our main method which returns futureObservable
-        final Future<Observable<ResponseBody>> futureObservable = new Future<Observable<ResponseBody>>(){
-
-            @Override
-            public boolean cancel(boolean mayInterruptIfRunning) {
-                if(mayInterruptIfRunning){
-                    executor.shutdown();
-                }
-                return false;
-            }
-
-            @Override
-            public boolean isCancelled() {
-                return executor.isShutdown();
-            }
-
-            @Override
-            public boolean isDone() {
-                return executor.isTerminated();
-            }
-
-            @Override
-            public Observable<ResponseBody> get() throws ExecutionException, InterruptedException {
-                return executor.submit(myNetworkCallable).get();
-            }
-
-            @Override
-            public Observable<ResponseBody> get(long timeout, TimeUnit unit) throws ExecutionException, InterruptedException, TimeoutException {
-                return executor.submit(myNetworkCallable).get(timeout, unit);
-            }
-        };
-
-        return futureObservable;
     }
-
 
 }

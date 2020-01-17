@@ -1,5 +1,6 @@
 package com.johnyhawkdesigns.a56_rxjavaandroid.MVVM;
 
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.http.GET;
@@ -14,7 +15,11 @@ import retrofit2.http.GET;
 public interface RequestApi {
 
     // This test method is provided by : https://jsonplaceholder.typicode.com/
+//    @GET("todos/1")
+//    Observable<ResponseBody> makeObservableQuery();
+
+
     @GET("todos/1")
-    Observable<ResponseBody> makeObservableQuery();
+    Flowable<ResponseBody> makeQuery();
 
 }

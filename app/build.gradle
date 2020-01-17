@@ -45,6 +45,10 @@ dependencies {
     def lifecycle_version = "1.1.1"
     implementation "android.arch.lifecycle:extensions:$lifecycle_version"
 
+    // Convert Observable to LiveData
+    implementation "android.arch.lifecycle:reactivestreams:$lifecycle_version"
+
+
     // Retrofit
     def retrofitVersion = "2.7.1"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
@@ -52,5 +56,9 @@ dependencies {
 
     // RxJava Call Adapter
     implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
+
+    // RxJava Call Adapter (Call object to Observable)
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
+
 
 }
