@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onNext(Task task) {
-                Log.d(TAG, "onNext: This task matches the description: " + task.getDescription());
+                Log.d(TAG, "onNext:filter() String = This task matches the description: " + task.getDescription());
             }
 
             @Override
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void onNext(Task task) {
-                Log.d(TAG, "onNext: This is a completed task: " + task.getDescription());
+                Log.d(TAG, "onNext: filter() Boolean = This is a completed task: " + task.getDescription());
             }
             @Override
             public void onError(Throwable e) {
@@ -153,6 +153,68 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
+        //======================================take() - Filtering a BOOLEAN ===================================//
+        //The main difference between the take() operators and the filter() operator is that the filter() operator will check every object in the list. So you could say the filter() operator is inclusive.
+        //Whereas the take() operators would be considered exclusive because they don't necessary check every item in the list. They will emit objects only until the condition of their function is satisfied.
+        Observable<Task> takeObservable = Observable
+                .fromIterable(DataSource.createTasksList())
+                .take(3) //Even though there is 5 Task objects added to the list, only 3 are emitted.
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+
+        takeObservable.subscribe(new Observer<Task>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+            @Override
+            public void onNext(Task task) {
+                Log.d(TAG, "onNext: take = " + task.getDescription());
+            }
+            @Override
+            public void onError(Throwable e) {
+
+            }
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+
+        //======================================takeWhile() - Filtering a BOOLEAN ===================================//
+        // The TakeWhile() mirrors the source Observable until such time as some condition you specify becomes false. If the condition becomes false, TakeWhile() stops mirroring the source Observable and terminates its own Observable.
+        Observable<Task> takeWhileObservable = Observable
+                .fromIterable(DataSource.createTasksList())
+                .takeWhile(new Predicate<Task>() {
+                    @Override
+                    public boolean test(Task task) throws Exception {
+                        return task.isComplete(); //Only the first Task will be emitted because it is marked as complete.
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+
+        takeWhileObservable.subscribe(new Observer<Task>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+            @Override
+            public void onNext(Task task) {
+                Log.d(TAG, "onNext: takeWhile = " + task.getDescription());
+            }
+            @Override
+            public void onError(Throwable e) {
+
+            }
+            @Override
+            public void onComplete() {
+
+            }
+        });
 
     }
 
