@@ -24,6 +24,7 @@ import okhttp3.ResponseBody;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.jakewharton.rxbinding3.view.RxView;
@@ -39,8 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     // ui
     private TextView textView;
-
-    //ui
+    private Button button;
     private SearchView searchView;
 
     // vars
@@ -54,73 +54,48 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         textView = findViewById(R.id.textView1);
-
+        button = findViewById(R.id.button);
         searchView = findViewById(R.id.search_view);
         timeSinceLastRequest = System.currentTimeMillis();
 
-        // Suppose you have a SearchView in your app. As the user enters characters into the SearchView, you want to perform queries on the server.
-        // If you don't limit the capturing of the characters to a time period, a new request will be made every time they enter a new character into the SearchView.
-        // Typically this is unnecessary and would yield undesirable results. Executing a new search every 0.5 seconds or so is probably fine.
-        //======================================Debounce - Example: Restrict Server Requests===================================//
-        Observable<String> observableQueryText = Observable
-                .create(new ObservableOnSubscribe<String>() {
+        // The ThrottleFirst() operator is very useful in Android development. For example: If a user is spamming a button, You don't want to
+        // register every click. You can use the ThrottleFirst() operator to only register new click events every time interval.
+        //======================================ThrottleFirst() - Example: Restrict Button Spamming===================================//
+        // Set a click listener to the button with RxBinding Library
+        RxView.clicks(button)
+                .throttleFirst(500, TimeUnit.MILLISECONDS) // Throttle the clicks so 500 ms must pass before registering a new click
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Unit>() {
                     @Override
-                    public void subscribe(final ObservableEmitter<String> emitter) throws Exception {
-
-                        // Listen for text input into the SearchView
-                        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                            @Override
-                            public boolean onQueryTextSubmit(String query) {
-                                return false;
-                            }
-
-                            @Override
-                            public boolean onQueryTextChange(String newText) {
-                                if(!emitter.isDisposed()){ // if emitter is not disposed
-                                    emitter.onNext(newText); // Pass the query to the emitter
-                                }
-                                return false;
-                            }
-                        });
+                    public void onSubscribe(Disposable d) {
+                        disposables.add(d);
                     }
-                })
-                .debounce(500, TimeUnit.MILLISECONDS) // Apply Debounce() operator to limit requests - 0.5 sec or 500 ms
-                .subscribeOn(Schedulers.io()); // Do this in background
 
+                    @Override
+                    public void onNext(Unit unit) {
+                        // Note, when we click the button now matter how fast, this should be always greater than 500
+                        Log.d(TAG, "onNext: time since last clicked: " + (System.currentTimeMillis() - timeSinceLastRequest));
+                        someMethod(); // Execute some method when a click is registered
+                    }
 
-        // Subscribe an Observer
-        observableQueryText.subscribe(new Observer<String>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-                disposables.add(d);
-            }
+                    @Override
+                    public void onError(Throwable e) {
 
-            @Override
-            public void onNext(String s) {
-                Log.d(TAG, "onNext: time  since last request: " + (System.currentTimeMillis() - timeSinceLastRequest));
-                Log.d(TAG, "onNext: search query: " + s);
-                timeSinceLastRequest = System.currentTimeMillis();
+                    }
 
-                // method for sending a request to the server
-                sendRequestToServer(s);
-            }
+                    @Override
+                    public void onComplete() {
 
-            @Override
-            public void onError(Throwable e) {
+                    }
+                });
 
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        });
 
     }
 
-    // Fake method for sending a request to the server
-    private void sendRequestToServer(String query){
-        // do nothing
+    // Fake method for executing method
+    private void someMethod(){
+        timeSinceLastRequest = System.currentTimeMillis();
+        // do something
     }
 
     // make sure to clear disposables when the activity is destroyed
