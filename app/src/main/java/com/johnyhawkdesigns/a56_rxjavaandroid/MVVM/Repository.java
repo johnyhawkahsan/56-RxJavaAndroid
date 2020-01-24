@@ -28,12 +28,13 @@ public class Repository {
         return repositoryInstance;
     }
 
+
     // Return "LiveData" Object
     public LiveData<ResponseBody> makeReactiveQuery(){
         return LiveDataReactiveStreams.fromPublisher(ServiceGenerator.getRequestApi() // this gets requestApi created out of retrofit
         .makeQuery() // method in RequestApi
         .subscribeOn(Schedulers.io())); // this tells to do this task in the background
-
     }
+
 
 }

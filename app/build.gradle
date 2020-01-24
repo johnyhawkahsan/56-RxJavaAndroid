@@ -54,8 +54,6 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
 
-    // RxJava Call Adapter
-    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
 
     // RxJava Call Adapter (Call object to Observable)
     implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
@@ -63,5 +61,9 @@ dependencies {
     // Rx Binding Library
     def rxbinding_version = "3.1.0"
     implementation "com.jakewharton.rxbinding3:rxbinding:$rxbinding_version"
+
+    // Recyclerview
+    def recyclerview_version = "1.1.0"
+    implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
 
 }

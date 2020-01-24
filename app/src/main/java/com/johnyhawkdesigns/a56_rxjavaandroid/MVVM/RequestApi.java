@@ -1,9 +1,13 @@
 package com.johnyhawkdesigns.a56_rxjavaandroid.MVVM;
 
+import java.util.List;
+
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 // https://codingwithmitch.com/courses/rxjava-rxandroid-for-beginners/rx-operators-from-future/
 // Here is the method Retrofit uses to make the query to the REST API.
@@ -21,5 +25,16 @@ public interface RequestApi {
 
     @GET("todos/1")
     Flowable<ResponseBody> makeQuery();
+
+
+    //getPosts() will retrieve the list of posts.
+    @GET("posts")
+    Observable<List<Post>> getPosts();
+
+    //getComments() will retrieve a list of comments for a particular post using post's id
+    @GET("/comments")
+    Observable<List<Comment>> getComments(
+            @Query("postId") int id
+    );
 
 }
